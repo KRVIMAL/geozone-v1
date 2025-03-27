@@ -1,22 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronLeftIcon, ChevronRightIcon } from 'lucide-react';
 
-// Imported types
-import { GeoZone } from "./types";
-
-// Imported hooks
 import { useGoogleMaps } from "./hooks/useGoogleMaps";
 import { useDrawingManager } from "./hooks/useDrawingManager";
 import { useGeozoneData } from "./hooks/useGeozoneData";
 import { useEditableShapes } from "./hooks/useEditableShapes";
 
-// Imported components
-// import GeozoneMap from "./components/GeozoneMap";
-// import GeozoneSidebar from "./components/GeozoneSidebar";
-// import CreateGeoZoneModal from "./component/CreateGeoZone.Modal";
-// import GeozoneControls from "./components/GeozoneControls";
 
-// Import utilities
 import { setupAutocomplete } from "./utils/mapHelpers";
 import GeozoneSidebar from "./component/GeozoneSidebar";
 import GeozoneMap from "./component/GeozoneMap";
@@ -111,6 +101,11 @@ const Geozone = () => {
     addGeozoneHandler(selectedShape);
   };
 
+  // Close modal wrapper
+  const handleCloseModal = () => {
+    handleCloseDialog(selectedShape);
+  };
+
   return (
     <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
       {/* Sidebar */}
@@ -152,12 +147,13 @@ const Geozone = () => {
         isEditMode={isEditMode} 
         toggleEditMode={toggleEditMode}
         error={editShapesError}
+        geozoneData={geozoneData}
       />
 
       {/* Modal */}
       <CreateGeoZoneModal
         isOpenModal={isOpen}
-        handleUpdateDialogClose={handleCloseDialog}
+        handleUpdateDialogClose={handleCloseModal}
         setFormField={setFormField}
         formField={formField}
         addGeozoneHandler={handleAddGeozone}

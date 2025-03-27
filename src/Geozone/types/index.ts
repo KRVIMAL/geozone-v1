@@ -3,7 +3,7 @@
 export interface GeoZone {
     _id: string;
     name: string;
-    userId: string;
+    userId: any;
     userEmail: string;
     mobileNumber: string;
     address: {
@@ -44,7 +44,7 @@ export interface GeoZone {
   }
   
   export interface GeozoneFormData {
-    userId: string;
+    userId: any;
     userEmail: string;
     name: string;
     mobileNumber: string;

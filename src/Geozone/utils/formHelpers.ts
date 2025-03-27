@@ -13,7 +13,7 @@ export const geoZoneInsertField = (data?: any): FormFields => {
       error: "",
     },
     user: {
-      value: data?.userId ?? "",
+      value: data?.userId._id ?? "",
       error: "",
     },
     userEmail: {
@@ -77,16 +77,15 @@ export const validateFormFields = (formField: FormFields): { isValid: boolean, u
   const updatedFields = { ...formField };
 
   // Check required fields
-  ["user", "mobileNumber", "zipCode", "address"].forEach((field) => {
-    if (!formField[field]?.value || formField[field].value.trim() === "") {
-      updatedFields[field] = {
-        ...updatedFields[field],
-        error: `Please enter ${field}.`,
-      };
-      isValid = false;
-    }
-  });
-
+  // ["user", "mobileNumber", "zipCode", "address"].forEach((field) => {
+  //   if (!formField[field]?.value || formField[field]?.value?.trim() === "") {
+  //     updatedFields[field] = {
+  //       ...updatedFields[field],
+  //       error: `Please enter ${field}.`,
+  //     };
+  //     isValid = false;
+  //   }
+  // });
   // Special handling for radius if shape type is Circle
   if (formField.type.value === "Circle" && (!formField.radius?.value || formField.radius.value === "0")) {
     updatedFields.radius = {

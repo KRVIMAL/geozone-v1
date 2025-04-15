@@ -1,13 +1,14 @@
-import { useState, useEffect } from 'react';
-import { 
-  fetchGeozoneHandler, 
-  createGeozone, 
-  updateGeozone, 
+import { useState, useEffect } from "react";
+import {
+  fetchGeozoneHandler,
+  createGeozone,
+  updateGeozone,
   deleteGeozone,
-  searchUsers
-} from '../services/geozone.service';
-import { GeoZone, User, FormFields } from '../types';
-import { geoZoneInsertField, validateFormFields } from '../utils/formHelpers';
+  searchUsers,
+} from "../services/geozone.service";
+import { GeoZone, User, FormFields } from "../types";
+import { geoZoneInsertField, validateFormFields } from "../utils/formHelpers";
+import toast from "react-hot-toast";
 
 interface UseGeozoneDataProps {
   google: any;
@@ -21,7 +22,7 @@ export const useGeozoneData = ({ google, map }: UseGeozoneDataProps) => {
   const [page, setPage] = useState<number>(1);
   const [limit, setLimit] = useState<number>(10);
   const [total, setTotal] = useState<number>(0);
-  const [searchText, setSearchText] = useState<string>('');
+  const [searchText, setSearchText] = useState<string>("");
   const [selectedRowData, setSelectedRowData] = useState<GeoZone | null>(null);
   const [edit, setEdit] = useState<boolean>(false);
   const [isOpen, setOpenModal] = useState<boolean>(false);
@@ -245,7 +246,9 @@ export const useGeozoneData = ({ google, map }: UseGeozoneDataProps) => {
             ...(radius !== undefined && { radius }),
           },
         },
-        createdBy: "admin", // Replace with actual user
+        isPublic: formField.isPublic?.value === "true",
+        isPrivate: formField.isPrivate?.value === "true",
+        createdBy: "admin",
       };
 
       if (edit && selectedRowData) {
@@ -255,13 +258,13 @@ export const useGeozoneData = ({ google, map }: UseGeozoneDataProps) => {
             ...payload,
           },
         });
-        console.log("Geozone updated successfully:", res);
+        toast.success(res.message);
         setEdit(false);
       } else {
         const res = await createGeozone({
           input: payload,
         });
-        console.log("Geozone created successfully:", res);
+        toast.success(res.message);
       }
 
       handleCloseDialog();
@@ -279,33 +282,39 @@ export const useGeozoneData = ({ google, map }: UseGeozoneDataProps) => {
 
       setLoading(false);
     } catch (error: any) {
-      console.error("Error saving geozone:", error);
       setLoading(false);
+      toast.success(error.message);
     }
   };
 
   // Handle edit geozone
   const handleEditGeozone = (geozone: GeoZone) => {
     setSelectedRowData(geozone);
-    
+
     // Find the user by userId to populate the user field
-    const user = users.find(u => u._id === geozone?.userId?._id);
-    
-    setFormField(geoZoneInsertField({
-      ...geozone,
-      user: user?.fullName || "",
-      userEmail: geozone.userEmail || (user?.email || ""),
-    }));
-    
+    const user = users.find((u) => u._id === geozone?.userId?._id);
+
+    setFormField(
+      geoZoneInsertField({
+        ...geozone,
+        user: user?.fullName || "",
+        userEmail: geozone.userEmail || user?.email || "",
+      })
+    );
+
     setEdit(true);
     setOpenModal(true);
 
     // Center map on the geozone
     if (map) {
-    const { coordinates }:any = geozone.geoCodeData.geometry;
-      const lat = Array.isArray(coordinates[0]) ? coordinates[0][0] : coordinates[0];
-      const lng = Array.isArray(coordinates[1]) ? coordinates[0][1] : coordinates[1];
-      
+      const { coordinates }: any = geozone.geoCodeData.geometry;
+      const lat = Array.isArray(coordinates[0])
+        ? coordinates[0][0]
+        : coordinates[0];
+      const lng = Array.isArray(coordinates[1])
+        ? coordinates[0][1]
+        : coordinates[1];
+
       map.setCenter({ lat, lng });
       map.setZoom(15);
     }
@@ -316,50 +325,53 @@ export const useGeozoneData = ({ google, map }: UseGeozoneDataProps) => {
     if (window.confirm("Are you sure you want to delete this geozone?")) {
       try {
         setLoading(true);
-        await deleteGeozone(id);
-        
+        const res = await deleteGeozone(id);
+        toast.success(res.message);
         // Remove the shape from the map if it exists
         if (map) {
-          shapes.forEach(shape => {
-            if (shape?.geozoneData?._id === id && typeof shape.setMap === 'function') {
+          shapes.forEach((shape) => {
+            if (
+              shape?.geozoneData?._id === id &&
+              typeof shape.setMap === "function"
+            ) {
               shape.setMap(null);
             }
           });
           // Remove from shapes array
-          setShapes(shapes.filter(shape => shape?.geozoneData?._id !== id));
+          setShapes(shapes.filter((shape) => shape?.geozoneData?._id !== id));
         }
-        
+
         await fetchGeozone();
         setLoading(false);
-      } catch (error) {
-        console.error("Error deleting geozone:", error);
+      } catch (error: any) {
+        toast.success(error.message);
         setLoading(false);
       }
     }
   };
 
-const handleCloseDialog = (drawnShape?: any) => {
-  setOpenModal(false);
-  if (drawnShape && typeof drawnShape.setMap === 'function') {
-    if (!edit || !shapes.includes(drawnShape)) {
-      drawnShape.setMap(null);
+  const handleCloseDialog = (drawnShape?: any) => {
+    setOpenModal(false);
+    if (drawnShape && typeof drawnShape.setMap === "function") {
+      if (!edit || !shapes.includes(drawnShape)) {
+        drawnShape.setMap(null);
+      }
     }
-  }
-  setFormField(geoZoneInsertField());
-  if (edit) {
-    setEdit(false);
-  }
-  setSelectedRowData(null);
-};
+    setFormField(geoZoneInsertField());
+    if (edit) {
+      setEdit(false);
+    }
+    setSelectedRowData(null);
+  };
 
   // Handle user selection for the form
   const handleUserChange = (userId: string) => {
-    const user = users.find(u => u._id === userId);
+    const user = users.find((u) => u._id === userId);
     if (user) {
       setFormField({
         ...formField,
         user: { ...formField.user, value: userId, error: "" },
-        userEmail: { ...formField.userEmail, value: user.email, error: "" }
+        userEmail: { ...formField.userEmail, value: user.email, error: "" },
       });
     }
   };
@@ -369,12 +381,12 @@ const handleCloseDialog = (drawnShape?: any) => {
     try {
       setLoading(true);
       await updateGeozone({
-        input: updatedGeozone
+        input: updatedGeozone,
       });
       await fetchGeozone(); // Refresh data
       setLoading(false);
     } catch (error) {
-      console.error("Error updating geozone shape:", error);
+      toast.success(error.message);
       setLoading(false);
     }
   };
@@ -409,6 +421,6 @@ const handleCloseDialog = (drawnShape?: any) => {
     handleDeleteGeozone,
     handleCloseDialog,
     handleUserChange,
-    updateGeozoneShape
+    updateGeozoneShape,
   };
 };

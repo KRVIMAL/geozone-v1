@@ -1,9 +1,11 @@
- import Geozone from "./Geozone/Geozone";
+import Geozone from "./Geozone/Geozone";
+import { Toaster } from "react-hot-toast";
 
 const App = () => {
   return (
     <div className="p-6">
-      <Geozone/>
+      <Toaster position="top-center" />
+      <Geozone />
     </div>
   );
 };

@@ -48,7 +48,7 @@ const GeozoneSidebar: React.FC<GeozoneSidebarProps> = ({
       <div className={`p-4 ${collapsed ? "hidden" : "block"}`}>
         <div className="mb-6">
           <h2 className="text-xl font-bold mb-4 text-gray-800 dark:text-white border-l-4 border-indigo-600 pl-2">
-            Create Geozonessss
+            Create Geozone
           </h2>
 
           <div className="relative mb-4">

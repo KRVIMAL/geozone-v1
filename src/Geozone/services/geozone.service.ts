@@ -1,48 +1,44 @@
-import axios from "axios"
+import axios from "axios";
 
-const BASE_URL = "http://localhost:9090"
-const BASE_URL_POSTAL_PIN_CODE = "https://api.postalpincode.in/pincode"
+const BASE_URL = "http://localhost:9090";
+const BASE_URL_POSTAL_PIN_CODE = "https://api.postalpincode.in/pincode";
 
 export const getAddressDetailsByPincode = async (pincode: string) => {
   try {
-    const response = await axios.get(`${BASE_URL_POSTAL_PIN_CODE}/${pincode}`)
-    return response?.data[0]?.PostOffice
+    const response = await axios.get(`${BASE_URL_POSTAL_PIN_CODE}/${pincode}`);
+    return response?.data[0]?.PostOffice;
   } catch (error: any) {
-    throw error.message
+    throw error.message;
   }
-}
+};
 
 export const createGeozone = async (data: any) => {
   try {
-    const response = await axios.post(`${BASE_URL}/geofences`, data.input)
-    return {
-      addGeozone: {
-        message: "Geozone created successfully",
-        data: response.data,
-      },
-    }
+    const response = await axios.post(`${BASE_URL}/geofences`, data.input);
+    return response.data;
   } catch (error: any) {
-    throw error.message
+    throw error.message;
   }
-}
+};
 
 export const fetchGeozoneHandler = async (params: any) => {
   try {
-    const { page = 1, limit = 10 } = params.input
-    const response = await axios.get(`${BASE_URL}/geofences?page=${page}&limit=${limit}`)
-   return response.data
-    
+    const { page = 1, limit = 10 } = params.input;
+    const response = await axios.get(
+      `${BASE_URL}/geofences?page=${page}&limit=${limit}`
+    );
+    return response.data;
   } catch (error: any) {
-    throw error.message
+    throw error.message;
   }
-}
+};
 
 export const searchGeozones = async (params: any) => {
   try {
-    const { page = 1, limit = 10, searchText = "" } = params.input
+    const { page = 1, limit = 10, searchText = "" } = params.input;
     const response = await axios.get(
-      `${BASE_URL}/geofences/search?page=${page}&limit=${limit}&searchText=${searchText}`,
-    )
+      `${BASE_URL}/geofences/search?page=${page}&limit=${limit}&searchText=${searchText}`
+    );
     return {
       searchGeozone: {
         data: response.data,
@@ -52,52 +48,45 @@ export const searchGeozones = async (params: any) => {
           perPage: limit,
         },
       },
-    }
+    };
   } catch (error: any) {
-    throw error.message
+    throw error.message;
   }
-}
+};
 
 export const getGeozoneById = async (id: string) => {
   try {
-    const response = await axios.get(`${BASE_URL}/geofences/${id}`)
+    const response = await axios.get(`${BASE_URL}/geofences/${id}`);
     return {
       getGeozone: {
         data: response.data,
       },
-    }
+    };
   } catch (error: any) {
-    throw error.message
+    throw error.message;
   }
-}
+};
 
 export const updateGeozone = async (data: any) => {
   try {
-    const response = await axios.put(`${BASE_URL}/geofences/${data.input._id}`, data.input)
-    return {
-      updateGeozone: {
-        message: "Geozone updated successfully",
-        data: response.data,
-      },
-    }
+    const response = await axios.put(
+      `${BASE_URL}/geofences/${data.input._id}`,
+      data.input
+    );
+    return response.data;
   } catch (error: any) {
-    throw error.message
+    throw error.message;
   }
-}
+};
 
 export const deleteGeozone = async (id: string) => {
   try {
-    const response = await axios.delete(`${BASE_URL}/geofences/${id}`)
-    return {
-      deleteGeozone: {
-        message: "Geozone deleted successfully",
-        data: response.data,
-      },
-    }
+    const response = await axios.delete(`${BASE_URL}/geofences/${id}`);
+    return response.data;
   } catch (error: any) {
-    throw error.message
+    throw error.message;
   }
-}
+};
 
 export const searchUsers = async (page = 1, limit = 10, search = {}) => {
   try {
@@ -113,7 +102,7 @@ export const searchUsers = async (page = 1, limit = 10, search = {}) => {
           "Content-Type": "application/json",
           "X-API-Key": localStorage.getItem("token") || "",
         },
-      },
+      }
     );
     return response.data;
   } catch (error: any) {

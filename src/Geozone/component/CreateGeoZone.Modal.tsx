@@ -1,34 +1,31 @@
-"use client"
-
-import type React from "react"
-
-import { useEffect, useState, useRef } from "react"
-import { getAddressDetailsByPincode } from "../services/geozone.service"
+import type React from "react";
+import { useEffect, useState, useRef } from "react";
+import { getAddressDetailsByPincode } from "../services/geozone.service";
 
 interface FormField {
-  value: string
-  error: string
+  value: string;
+  error: string;
 }
 
 interface FormFields {
-  [key: string]: FormField
+  [key: string]: FormField;
 }
 
 interface User {
-  _id: string
-  fullName: string
-  email: string
+  _id: string;
+  fullName: string;
+  email: string;
 }
 
 interface CreateGeoZoneModalProps {
-  isOpenModal: boolean
-  handleUpdateDialogClose: () => void
-  setFormField: (formField: any) => void
-  formField: FormFields
-  addGeozoneHandler: () => void
-  users: User[]
-  edit: boolean
-  handleUserChange: (userId: string) => void
+  isOpenModal: boolean;
+  handleUpdateDialogClose: () => void;
+  setFormField: (formField: any) => void;
+  formField: FormFields;
+  addGeozoneHandler: () => void;
+  users: User[];
+  edit: boolean;
+  handleUserChange: (userId: string) => void;
 }
 
 const CreateGeoZoneModal = ({
@@ -41,75 +38,83 @@ const CreateGeoZoneModal = ({
   edit,
   handleUserChange,
 }: CreateGeoZoneModalProps) => {
-  const [zipCodeData, setZipCodeData] = useState<any[]>([])
-  const [showZipCodeSuggestions, setShowZipCodeSuggestions] = useState(false)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [filteredUsers, setFilteredUsers] = useState<User[]>([])
-  const [showUserDropdown, setShowUserDropdown] = useState(false)
-  const userDropdownRef = useRef<HTMLDivElement>(null)
-  const searchInputRef = useRef<HTMLInputElement>(null)
+  const [zipCodeData, setZipCodeData] = useState<any[]>([]);
+  const [showZipCodeSuggestions, setShowZipCodeSuggestions] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filteredUsers, setFilteredUsers] = useState<User[]>([]);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const userDropdownRef = useRef<HTMLDivElement>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (!isOpenModal) {
-      setZipCodeData([])
-      setShowZipCodeSuggestions(false)
-      setSearchTerm("")
-      setShowUserDropdown(false)
+      setZipCodeData([]);
+      setShowZipCodeSuggestions(false);
+      setSearchTerm("");
+      setShowUserDropdown(false);
     }
-  }, [isOpenModal])
+  }, [isOpenModal]);
 
   useEffect(() => {
     // Filter users based on search term
     if (searchTerm.trim() === "") {
-      setFilteredUsers(users)
+      setFilteredUsers(users);
     } else {
       const filtered = users.filter(
         (user) =>
           user.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          user.email.toLowerCase().includes(searchTerm.toLowerCase()),
-      )
-      setFilteredUsers(filtered)
+          user.email.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredUsers(filtered);
     }
-  }, [searchTerm, users])
+  }, [searchTerm, users]);
 
   useEffect(() => {
     // Close dropdown when clicking outside
     const handleClickOutside = (event: MouseEvent) => {
-      if (userDropdownRef.current && !userDropdownRef.current.contains(event.target as Node)) {
-        setShowUserDropdown(false)
+      if (
+        userDropdownRef.current &&
+        !userDropdownRef.current.contains(event.target as Node)
+      ) {
+        setShowUserDropdown(false);
       }
-    }
+    };
 
-    document.addEventListener("mousedown", handleClickOutside)
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside)
-    }
-  }, [])
-  console.log({formField})
-console.log({user:formField.user?.value})
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   useEffect(() => {
     // When in edit mode and a user is selected, set the search term
     if (edit && formField.user?.value) {
-      const selectedUser = users.find((user) => user._id === formField.user.value)
+      const selectedUser = users.find(
+        (user) => user._id === formField.user.value
+      );
       if (selectedUser) {
-        setSearchTerm(selectedUser.fullName)
+        setSearchTerm(selectedUser.fullName);
       }
     }
-  }, [edit, formField.user?.value, users])
+  }, [edit, formField.user?.value, users]);
 
   const fetchZipCodeHandler = async (value: string) => {
     try {
-      const res = await getAddressDetailsByPincode(value)
-      setZipCodeData(res || [])
-      setShowZipCodeSuggestions(true)
+      const res = await getAddressDetailsByPincode(value);
+      setZipCodeData(res || []);
+      setShowZipCodeSuggestions(true);
     } catch (error: any) {
-      console.error("Error fetching zip code data:", error)
-      setZipCodeData([])
+      console.error("Error fetching zip code data:", error);
+      setZipCodeData([]);
     }
-  }
+  };
 
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target
+  const handleOnChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
     setFormField({
       ...formField,
       [name]: {
@@ -117,12 +122,46 @@ console.log({user:formField.user?.value})
         value: value,
         error: "",
       },
-    })
+    });
 
     if (name === "zipCode" && value.length >= 6) {
-      fetchZipCodeHandler(value)
+      fetchZipCodeHandler(value);
     }
-  }
+  };
+
+  const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, checked } = e.target;
+
+    if (name === "isPublic") {
+      setFormField({
+        ...formField,
+        isPublic: {
+          ...formField.isPublic,
+          value: checked ? "true" : "false",
+          error: "",
+        },
+        isPrivate: {
+          ...formField.isPrivate,
+          value: checked ? "false" : "true",
+          error: "",
+        },
+      });
+    } else if (name === "isPrivate") {
+      setFormField({
+        ...formField,
+        isPrivate: {
+          ...formField.isPrivate,
+          value: checked ? "true" : "false",
+          error: "",
+        },
+        isPublic: {
+          ...formField.isPublic,
+          value: checked ? "false" : "true",
+          error: "",
+        },
+      });
+    }
+  };
 
   const handleZipCodeSelection = (item: any) => {
     setFormField({
@@ -138,35 +177,37 @@ console.log({user:formField.user?.value})
         value: `${item.Country} - ${item.State} - ${item.Name} - ${item.District} - ${item.Block}`,
         error: "",
       },
-    })
-    setShowZipCodeSuggestions(false)
-  }
+    });
+    setShowZipCodeSuggestions(false);
+  };
 
   const handleUserSelection = (user: User) => {
     setFormField({
       ...formField,
       user: { ...formField.user, value: user._id, error: "" },
       userEmail: { ...formField.userEmail, value: user.email, error: "" },
-    })
-    setSearchTerm(user.fullName)
-    setShowUserDropdown(false)
+    });
+    setSearchTerm(user.fullName);
+    setShowUserDropdown(false);
     if (handleUserChange) {
-      handleUserChange(user._id)
+      handleUserChange(user._id);
     }
-  }
+  };
 
   const handleSearchFocus = () => {
-    setShowUserDropdown(true)
-  }
+    setShowUserDropdown(true);
+  };
 
-  if (!isOpenModal) return null
+  if (!isOpenModal) return null;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div className="bg-white dark:bg-gray-800 rounded-lg w-full max-w-3xl max-h-[90vh] overflow-auto">
         <div className="p-6">
           <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-bold dark:text-white">{edit ? "Update Geozone" : "Create Geozone"}</h2>
+            <h2 className="text-xl font-bold dark:text-white">
+              {edit ? "Update Geozone" : "Create Geozone"}
+            </h2>
             <button
               onClick={handleUpdateDialogClose}
               className="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-white"
@@ -178,13 +219,18 @@ console.log({user:formField.user?.value})
                 viewBox="0 0 24 24"
                 stroke="currentColor"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="col-span-1">
+            <div className="col-span-1">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Name <span className="text-red-500">*</span>
               </label>
@@ -195,12 +241,60 @@ console.log({user:formField.user?.value})
                 onChange={handleOnChange}
                 placeholder="Enter Name"
                 className={`w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:text-white ${
-                  formField.name?.error ? "border-red-500" : "border-gray-300 dark:border-gray-600"
+                  formField.name?.error
+                    ? "border-red-500"
+                    : "border-gray-300 dark:border-gray-600"
                 }`}
                 maxLength={100}
               />
-              {formField.name?.error && <p className="text-red-500 text-xs mt-1">{formField.name.error}</p>}
+              {formField.name?.error && (
+                <p className="text-red-500 text-xs mt-1">
+                  {formField.name.error}
+                </p>
+              )}
             </div>
+
+            {/* Visibility Options */}
+            <div className="col-span-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                Visibility Settings
+              </label>
+              <div className="flex space-x-4 mt-2">
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    id="isPublic"
+                    name="isPublic"
+                    checked={formField.isPublic?.value === "true"}
+                    onChange={handleRadioChange}
+                    className="mr-2 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+                  />
+                  <label
+                    htmlFor="isPublic"
+                    className="text-sm text-gray-700 dark:text-gray-300"
+                  >
+                    Public
+                  </label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="radio"
+                    id="isPrivate"
+                    name="isPrivate"
+                    checked={formField.isPrivate?.value === "true"}
+                    onChange={handleRadioChange}
+                    className="mr-2 text-indigo-600 focus:ring-indigo-500 h-4 w-4"
+                  />
+                  <label
+                    htmlFor="isPrivate"
+                    className="text-sm text-gray-700 dark:text-gray-300"
+                  >
+                    Private
+                  </label>
+                </div>
+              </div>
+            </div>
+
             {/* User selection with search */}
             <div className="col-span-1 relative" ref={userDropdownRef}>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
@@ -214,10 +308,16 @@ console.log({user:formField.user?.value})
                 onFocus={handleSearchFocus}
                 placeholder="Search for a user..."
                 className={`w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:text-white ${
-                  formField.user?.error ? "border-red-500" : "border-gray-300 dark:border-gray-600"
+                  formField.user?.error
+                    ? "border-red-500"
+                    : "border-gray-300 dark:border-gray-600"
                 }`}
               />
-              {formField.user?.error && <p className="text-red-500 text-xs mt-1">{formField.user.error}</p>}
+              {formField.user?.error && (
+                <p className="text-red-500 text-xs mt-1">
+                  {formField.user.error}
+                </p>
+              )}
 
               {showUserDropdown && (
                 <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-700 shadow-lg rounded-md max-h-60 overflow-auto">
@@ -229,11 +329,15 @@ console.log({user:formField.user?.value})
                         onClick={() => handleUserSelection(user)}
                       >
                         <div className="font-medium">{user.fullName}</div>
-                        <div className="text-xs text-gray-500 dark:text-gray-400">{user.email}</div>
+                        <div className="text-xs text-gray-500 dark:text-gray-400">
+                          {user.email}
+                        </div>
                       </div>
                     ))
                   ) : (
-                    <div className="p-2 text-gray-500 dark:text-gray-400">No users found</div>
+                    <div className="p-2 text-gray-500 dark:text-gray-400">
+                      No users found
+                    </div>
                   )}
                 </div>
               )}
@@ -241,7 +345,9 @@ console.log({user:formField.user?.value})
 
             {/* User Email (read-only) */}
             <div className="col-span-1">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">User Email</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                User Email
+              </label>
               <input
                 type="text"
                 name="userEmail"
@@ -262,11 +368,15 @@ console.log({user:formField.user?.value})
                 onChange={handleOnChange}
                 placeholder="Enter Mobile Number"
                 className={`w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:text-white ${
-                  formField.mobileNumber?.error ? "border-red-500" : "border-gray-300 dark:border-gray-600"
+                  formField.mobileNumber?.error
+                    ? "border-red-500"
+                    : "border-gray-300 dark:border-gray-600"
                 }`}
               />
               {formField.mobileNumber?.error && (
-                <p className="text-red-500 text-xs mt-1">{formField.mobileNumber.error}</p>
+                <p className="text-red-500 text-xs mt-1">
+                  {formField.mobileNumber.error}
+                </p>
               )}
             </div>
 
@@ -281,10 +391,16 @@ console.log({user:formField.user?.value})
                 onChange={handleOnChange}
                 placeholder="Enter Zip Code"
                 className={`w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:text-white ${
-                  formField.zipCode?.error ? "border-red-500" : "border-gray-300 dark:border-gray-600"
+                  formField.zipCode?.error
+                    ? "border-red-500"
+                    : "border-gray-300 dark:border-gray-600"
                 }`}
               />
-              {formField.zipCode?.error && <p className="text-red-500 text-xs mt-1">{formField.zipCode.error}</p>}
+              {formField.zipCode?.error && (
+                <p className="text-red-500 text-xs mt-1">
+                  {formField.zipCode.error}
+                </p>
+              )}
 
               {showZipCodeSuggestions && zipCodeData.length > 0 && (
                 <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-700 shadow-lg rounded-md max-h-60 overflow-auto">
@@ -381,11 +497,17 @@ console.log({user:formField.user?.value})
                 placeholder="Enter Address"
                 rows={3}
                 className={`w-full p-2 border rounded-md bg-white dark:bg-gray-700 dark:text-white ${
-                  formField.address?.error ? "border-red-500" : "border-gray-300 dark:border-gray-600"
+                  formField.address?.error
+                    ? "border-red-500"
+                    : "border-gray-300 dark:border-gray-600"
                 }`}
                 maxLength={300}
               />
-              {formField.address?.error && <p className="text-red-500 text-xs mt-1">{formField.address.error}</p>}
+              {formField.address?.error && (
+                <p className="text-red-500 text-xs mt-1">
+                  {formField.address.error}
+                </p>
+              )}
             </div>
           </div>
 
@@ -406,8 +528,7 @@ console.log({user:formField.user?.value})
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default CreateGeoZoneModal
-
+export default CreateGeoZoneModal;

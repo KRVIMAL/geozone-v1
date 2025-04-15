@@ -1,5 +1,5 @@
 // Import types
-import { FormFields, GeoZone } from '../types';
+import { FormFields } from "../types";
 
 // Use the existing geoZoneInsertField implementation from your helper
 export const geoZoneInsertField = (data?: any): FormFields => {
@@ -67,12 +67,28 @@ export const geoZoneInsertField = (data?: any): FormFields => {
     description: {
       value: "",
       error: "",
-    }
+    },
+    isPublic: {
+      // Convert boolean to string, handling both boolean and string inputs
+      value:
+        data?.isPublic === true || data?.isPublic === "true" ? "true" : "false",
+      error: "",
+    },
+    isPrivate: {
+      // Convert boolean to string, handling both boolean and string inputs
+      value:
+        data?.isPrivate === true || data?.isPrivate === "true"
+          ? "true"
+          : "false",
+      error: "",
+    },
   };
 };
 
 // Validate form fields
-export const validateFormFields = (formField: FormFields): { isValid: boolean, updatedFields: FormFields } => {
+export const validateFormFields = (
+  formField: FormFields
+): { isValid: boolean; updatedFields: FormFields } => {
   let isValid = true;
   const updatedFields = { ...formField };
 
@@ -87,7 +103,10 @@ export const validateFormFields = (formField: FormFields): { isValid: boolean, u
   //   }
   // });
   // Special handling for radius if shape type is Circle
-  if (formField.type.value === "Circle" && (!formField.radius?.value || formField.radius.value === "0")) {
+  if (
+    formField.type.value === "Circle" &&
+    (!formField.radius?.value || formField.radius.value === "0")
+  ) {
     updatedFields.radius = {
       ...updatedFields.radius,
       error: "Please enter radius.",

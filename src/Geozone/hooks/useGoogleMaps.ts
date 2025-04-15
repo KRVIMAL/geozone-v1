@@ -1,4 +1,4 @@
-import { useState, useEffect, RefObject } from 'react';
+import { useState, useEffect, RefObject } from "react";
 import { Loader } from "@googlemaps/js-api-loader/dist/index.mjs";
 
 const API_KEY = "AIzaSyAaZ1M_ofwVoLohowruNhY0fyihH9NpcI0";
@@ -16,7 +16,8 @@ export const useGoogleMaps = (
 ): UseGoogleMapsReturn => {
   const [google, setGoogle] = useState<any>(null);
   const [map, setMap] = useState<google.maps.Map | null>(null);
-  const [drawingManager, setDrawingManager] = useState<google.maps.drawing.DrawingManager | null>(null);
+  const [drawingManager, setDrawingManager] =
+    useState<google.maps.drawing.DrawingManager | null>(null);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [error, setError] = useState<Error | null>(null);
 
@@ -33,7 +34,6 @@ export const useGoogleMaps = (
         const googleMaps = await loader.load();
         setGoogle(googleMaps);
         setIsLoaded(true);
-        console.log("Google Maps loaded successfully");
       } catch (err: any) {
         console.error("Error loading Google Maps:", err);
         setError(err);
@@ -124,7 +124,7 @@ export const useGoogleMaps = (
   // Trigger resize event when map is first created
   useEffect(() => {
     if (map && window.google?.maps?.event) {
-      window.google.maps.event.trigger(map, 'resize');
+      window.google.maps.event.trigger(map, "resize");
     }
   }, [map]);
 

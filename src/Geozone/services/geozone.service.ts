@@ -1,7 +1,8 @@
 import axios from "axios";
 
-const BASE_URL = "http://localhost:9090";
-const BASE_URL_POSTAL_PIN_CODE = "https://api.postalpincode.in/pincode";
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+const BASE_URL_POSTAL_PIN_CODE = import.meta.env.VITE_POSTAL_PIN_CODE_API;
+const USER_SERVICE_URL = import.meta.env.VITE_USER_SERVICE_URL;
 
 export const getAddressDetailsByPincode = async (pincode: string) => {
   try {
@@ -91,7 +92,7 @@ export const deleteGeozone = async (id: string) => {
 export const searchUsers = async (page = 1, limit = 10, search = {}) => {
   try {
     const response = await axios.post(
-      `http://165.22.215.163:8081/userservice/searchUser`,
+      USER_SERVICE_URL,
       {
         page,
         limit,

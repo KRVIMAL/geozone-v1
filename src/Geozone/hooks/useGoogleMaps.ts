@@ -1,7 +1,7 @@
 import { useState, useEffect, RefObject } from "react";
 import { Loader } from "@googlemaps/js-api-loader/dist/index.mjs";
 
-const API_KEY = "AIzaSyAaZ1M_ofwVoLohowruNhY0fyihH9NpcI0";
+const API_KEY = import.meta.env.VITE_GOOGLE_MAP_API_KEY;
 
 interface UseGoogleMapsReturn {
   google: any;
